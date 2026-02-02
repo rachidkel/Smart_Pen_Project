@@ -1,0 +1,25 @@
+{
+  "model_info": {
+    "model_type": "RandomForestClassifier",
+    "training_accuracy": 0.9915824915824916,
+    "test_accuracy": 0.8053691275167785,
+    "overfitting_gap": 0.1862133640657131,
+    "cv_mean": 0.8569292123629113,
+    "cv_std": 0.013810408701779879
+  },
+  "dataset_info": {
+    "total_samples": 743,
+    "train_samples": 594,
+    "test_samples": 149,
+    "feature_dimension": 36
+  },
+  "hyperparameters": {
+    "bootstrap": true,
+    "max_depth": null,
+    "max_features": "sqrt",
+    "max_samples": 0.8,
+    "min_samples_leaf": 2,
+    "min_samples_split": 5,
+    "n_estimators": 100
+  }
+}

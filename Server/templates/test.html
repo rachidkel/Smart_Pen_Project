@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Pen Quality Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .control-panel {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .status-panel {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        h2 {
+            color: #495057;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .status-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+
+        .status-dot.testing { background: #28a745; animation: pulse 1.5s infinite; }
+        .status-dot.stopped { background: #dc3545; }
+        .status-dot.model-loaded { background: #007bff; }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, #dc3545, #fd7e14);
+            color: white;
+        }
+
+        .btn-analyze {
+            background: linear-gradient(135deg, #007bff, #6610f2);
+            color: white;
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .data-counter {
+            font-size: 1.5em;
+            text-align: center;
+            margin: 20px 0;
+            color: #495057;
+        }
+
+        .counter-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .result-display {
+            margin-top: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .result-quality {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .result-good {
+            color: #28a745;
+            background: rgba(40, 167, 69, 0.1);
+        }
+
+        .result-medium {
+            color: #fd7e14;
+            background: rgba(253, 126, 20, 0.1);
+        }
+
+        .result-bad {
+            color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+        }
+
+        .confidence-bar {
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745, #20c997);
+            transition: width 1s ease;
+        }
+
+        .probabilities {
+            display: grid;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .probability-row {
+            display: grid;
+            grid-template-columns: 100px 1fr 70px;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .prob-label {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        .prob-bar-container {
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .prob-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #6610f2);
+        }
+
+        .prob-value {
+            text-align: right;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .model-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>✏️ Smart Pen Quality Tester</h1>
+            <p class="subtitle">Real-time pen quality analysis using machine learning</p>
+        </header>
+
+        <div class="main-content">
+            <div class="control-panel">
+                <h2>📋 Testing Controls</h2>
+                
+                <div class="status-indicator">
+                    <div class="status-dot model-loaded"></div>
+                    <span>Model: {% if model_loaded %}✅ Loaded{% else %}❌ Not Loaded{% endif %}</span>
+                </div>
+
+                <div class="status-indicator">
+                    <div class="status-dot {% if testing %}testing{% else %}stopped{% endif %}"></div>
+                    <span>Status: {% if testing %}🟢 Testing in Progress{% else %}🔴 Stopped{% endif %}</span>
+                </div>
+
+                <div class="data-counter">
+                    Data Points Collected: 
+                    <span id="dataCount" class="counter-number">0</span>
+                </div>
+
+                <button id="startBtn" class="btn btn-start" onclick="startTest()">
+                    🟢 Start Testing
+                </button>
+
+                <button id="stopBtn" class="btn btn-stop" onclick="stopTest()" disabled>
+                    🛑 Stop & Analyze
+                </button>
+
+                <button id="analyzeBtn" class="btn btn-analyze" onclick="analyzeNow()" disabled>
+                    📊 Analyze Now
+                </button>
+
+                <button id="clearBtn" class="btn btn-clear" onclick="clearTest()">
+                    🗑️ Clear Data
+                </button>
+
+                <div class="model-info">
+                    <div class="info-row">
+                        <span>Model Type:</span>
+                        <span id="modelType">Random Forest</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Accuracy:</span>
+                        <span id="modelAccuracy">Loading...</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Classes:</span>
+                        <span id="modelClasses">good, medium, bad</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="status-panel">
+                <h2>📊 Test Results</h2>
+                
+                <div id="errorMessage" class="error-message"></div>
+                <div id="successMessage" class="success-message"></div>
+
+                <div id="resultDisplay" class="result-display" style="display: none;">
+                    <div id="qualityResult" class="result-quality"></div>
+                    
+                    <div id="interpretation" style="text-align: center; margin: 20px 0; font-size: 1.1em;"></div>
+                    
+                    <div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <span>Confidence:</span>
+                            <span id="confidenceValue">0%</span>
+                        </div>
+                        <div class="confidence-bar">
+                            <div id="confidenceFill" class="confidence-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="probabilities" id="probabilities"></div>
+
+                    <div class="model-info" style="margin-top: 20px;">
+                        <div class="info-row">
+                            <span>Data Points:</span>
+                            <span id="resultDataPoints">0</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Test Duration:</span>
+                            <span id="testDuration">0s</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Timestamp:</span>
+                            <span id="resultTimestamp">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="waitingMessage" style="text-align: center; padding: 40px; color: #6c757d;">
+                    <p>👆 Start testing to see results here</p>
+                    <p style="font-size: 0.9em; margin-top: 10px;">Write naturally with the pen for best results</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Smart Pen Quality Classifier v1.0 | Real-time ML Analysis</p>
+        </footer>
+    </div>
+
+    <script>
+        let dataCount = 0;
+        let testActive = false;
+        let updateInterval;
+        let modelInfo = {};
+
+        // Load model info on page load
+        window.onload = function() {
+            loadModelInfo();
+        };
+
+        function loadModelInfo() {
+            fetch('/model_info')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.error) {
+                        modelInfo = data;
+                        document.getElementById('modelType').textContent = data.model_type || 'Random Forest';
+                        document.getElementById('modelAccuracy').textContent = 
+                            data.accuracy ? (data.accuracy * 100).toFixed(1) + '%' : 'Unknown';
+                        document.getElementById('modelClasses').textContent = 
+                            data.classes ? data.classes.join(', ') : 'good, medium, bad';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading model info:', error);
+                });
+        }
+
+        function startTest() {
+            fetch('/start_test', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showError(data.error);
+                        return;
+                    }
+                    
+                    testActive = true;
+                    dataCount = 0;
+                    
+                    document.getElementById('startBtn').disabled = true;
+                    document.getElementById('stopBtn').disabled = false;
+                    document.getElementById('analyzeBtn').disabled = false;
+                    document.getElementById('clearBtn').disabled = true;
+                    
+                    showSuccess('Testing started! Start writing with the pen...');
+                    updateDataCount();
+                    
+                    // Start periodic status updates
+                    clearInterval(updateInterval);
+                    updateInterval = setInterval(updateStatus, 1000);
+                })
+                .catch(error => {
+                    showError('Failed to start test: ' + error);
+                });
+        }
+
+        function stopTest() {
+            fetch('/stop_test', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showError(data.error);
+                        return;
+                    }
+                    
+                    testActive = false;
+                    
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('stopBtn').disabled = true;
+                    document.getElementById('analyzeBtn').disabled = true;
+                    document.getElementById('clearBtn').disabled = false;
+                    
+                    clearInterval(updateInterval);
+                    showTestResults(data);
+                })
+                .catch(error => {
+                    showError('Failed to stop test: ' + error);
+                });
+        }
+
+        function analyzeNow() {
+            fetch('/analyze_now')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showError(data.error);
+                        return;
+                    }
+                    
+                    showTestResults(data);
+                    showSuccess('Real-time analysis complete!');
+                })
+                .catch(error => {
+                    showError('Failed to analyze: ' + error);
+                });
+        }
+
+        function clearTest() {
+            fetch('/clear_test')
+                .then(response => response.json())
+                .then(data => {
+                    dataCount = 0;
+                    document.getElementById('dataCount').textContent = '0';
+                    document.getElementById('resultDisplay').style.display = 'none';
+                    document.getElementById('waitingMessage').style.display = 'block';
+                    showSuccess('Test data cleared!');
+                });
+        }
+
+        function updateStatus() {
+            fetch('/test_status')
+                .then(response => response.json())
+                .then(data => {
+                    dataCount = data.data_points || 0;
+                    updateDataCount();
+                    
+                    // Auto-stop if we have enough data
+                    if (dataCount >= 500 && testActive) {
+                        stopTest();
+                    }
+                });
+        }
+
+        function updateDataCount() {
+            document.getElementById('dataCount').textContent = dataCount;
+        }
+
+        function showTestResults(data) {
+            const resultDisplay = document.getElementById('resultDisplay');
+            const waitingMessage = document.getElementById('waitingMessage');
+            
+            resultDisplay.style.display = 'block';
+            waitingMessage.style.display = 'none';
+            
+            // Update quality result
+            const qualityResult = document.getElementById('qualityResult');
+            qualityResult.textContent = data.quality.toUpperCase();
+            qualityResult.className = 'result-quality result-' + data.quality;
+            
+            // Update interpretation
+            document.getElementById('interpretation').textContent = data.interpretation || '';
+            
+            // Update confidence
+            const confidence = data.confidence || 0;
+            document.getElementById('confidenceValue').textContent = confidence.toFixed(1) + '%';
+            document.getElementById('confidenceFill').style.width = confidence + '%';
+            
+            // Update probabilities
+            const probsContainer = document.getElementById('probabilities');
+            probsContainer.innerHTML = '';
+            
+            if (data.probabilities) {
+                for (const [label, value] of Object.entries(data.probabilities)) {
+                    const row = document.createElement('div');
+                    row.className = 'probability-row';
+                    
+                    row.innerHTML = `
+                        <div class="prob-label">${label}</div>
+                        <div class="prob-bar-container">
+                            <div class="prob-bar" style="width: ${value}%"></div>
+                        </div>
+                        <div class="prob-value">${value.toFixed(1)}%</div>
+                    `;
+                    
+                    probsContainer.appendChild(row);
+                }
+            }
+            
+            // Update metadata
+            document.getElementById('resultDataPoints').textContent = data.data_points || 0;
+            document.getElementById('testDuration').textContent = 
+                data.duration_seconds ? data.duration_seconds.toFixed(1) + 's' : '-';
+            document.getElementById('resultTimestamp').textContent = 
+                new Date().toLocaleTimeString();
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

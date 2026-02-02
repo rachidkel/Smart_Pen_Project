@@ -1,0 +1,51 @@
+{
+  "model_info": {
+    "model_type": "RandomForestClassifier",
+    "training_accuracy": 0.9579124579124579,
+    "test_accuracy": 0.825503355704698,
+    "overfitting_gap": 0.13240910220775992,
+    "cv_mean_accuracy": 0.8199544224469448,
+    "cv_std_accuracy": 0.029967335906307846,
+    "expected_real_world_accuracy_range": [
+      0.789987086540637,
+      0.8499217583532527
+    ],
+    "hyperparameters": {
+      "n_estimators": 150,
+      "max_depth": 10,
+      "min_samples_split": 10,
+      "min_samples_leaf": 4,
+      "max_features": "sqrt",
+      "max_samples": 0.8,
+      "bootstrap": true,
+      "class_weight": "balanced"
+    }
+  },
+  "dataset_info": {
+    "total_samples": 743,
+    "train_samples": 594,
+    "test_samples": 149,
+    "class_distribution": {
+      "bad": 237,
+      "good": 352,
+      "medium": 154
+    },
+    "imbalance_ratio": 2.2857142857142856
+  },
+  "performance_summary": {
+    "final_test_accuracy": 0.825503355704698,
+    "overfitting_level": "MODERATE",
+    "deployment_readiness": "PRODUCTION_READY",
+    "confidence_interval": "82.0% to 88.0%"
+  },
+  "feature_analysis": {
+    "total_features": 36,
+    "top_5_features": [
+      "gz_mean",
+      "ay_mean",
+      "az_75%",
+      "ay_25%",
+      "ay_75%"
+    ]
+  }
+}

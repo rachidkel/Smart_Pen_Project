@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IMU Handwriting Recorder</title>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            width: 380px;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2a5298;
+        }
+
+        .status {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .recording { color: #27ae60; }
+        .stopped { color: #c0392b; }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 12px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .btn-start {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-stop {
+            background: #c0392b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h2>IMU Handwriting Recorder</h2>
+
+    <div class="status">
+        Status:
+        {% if recording %}
+            <span class="recording">RECORDING</span>
+        {% else %}
+            <span class="stopped">STOPPED</span>
+        {% endif %}
+    </div>
+
+    <form method="POST" action="/start">
+
+        <label>Arabic Word</label>
+       <!---- <input type="radio" name="arabic_word" placeholder="مثال: اكل" required>-->
+        <select name="arabic_word" required>
+            <option >كتب</option>
+            <option >سلام</option>
+             <option >سمع</option>
+              <option >قلم</option>
+               <option >بيت</option>
+                <option >لغة</option>
+                 <option >استيقظ</option>
+                  <option >محمد</option>
+                   <option >شمس</option>
+                    <option >طالب</option>
+                    <option >الطالب يكتب درسه في الدفتر</option>
+                      <option >العلم نور يضيء الطريق</option>
+                        <option >الكتاب صديق لا يمل</option>
+                          <option >الاجتهاد طريق النجاح</option>
+                            <option >الشمس تشرق كل صباح</option>
+                              <option >محمد يكتب بخط جميل</option>
+                                <option >تسجيل البيانات يتم بخط واضح و سرعة ثابتة</option>
+                                  <option >العلم نور</option>
+                                    <option >الجهل ظلام</option>
+
+        </select>
+
+        <label>Hand</label>
+        <select name="hand" required>
+            <option value="right">Right Hand</option>
+            <option value="left">Left Hand</option>
+        </select>
+
+        <label>Quality</label>
+        <select name="quality" required>
+            <option value="good">Good</option>
+            <option value="bad">Bad</option>
+            <option value="Medium">Medium</option>
+        </select>
+
+        <label>File Name</label>
+        <input type="text" name="filename" placeholder="example: salam_01" required>
+
+        <button class="btn btn-start" type="submit">Start Recording</button>
+    </form>
+
+    <form method="POST" action="/stop">
+        <button class="btn btn-stop" type="submit">Stop Recording</button>
+    </form>
+
+</div>
+
+</body>
+</html>
